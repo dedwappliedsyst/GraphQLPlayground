@@ -1,29 +1,34 @@
 import express from 'express';
-import express_graphql from 'express-graphql';
+import expressGraphql from 'express-graphql';
 import { buildSchema } from 'graphql';
 import { courses } from './data/courses';
 
-const schema = buildSchema(`
-    type Query {
-        course(id: Int!): Course
-        courses(topic: String): [Course]
-    }
-    type Course {
-        id: Int
-        title: String
-        description: String
-        topic: String
-    }
-`);
+const schemaDefinition = `
+type Query {
+    course(id: Int!): Course
+    courses(topic: String): [Course]
+},
+type Mutation {
+    updateCourseTitle(id: Int!, title: String!): Course
+}
+type Course {
+    id: Int
+    title: String
+    description: String
+    topic: String
+}`;
+
+const schema = buildSchema(schemaDefinition);
 
 const getCourse = args => courses.find(course => course.id === args.id);
-const getCourses = args => {
+
+const getCourses = (args) => {
     if (!args.topic) {
         return courses;
     }
 
     return courses.filter(course => course.topic === args.topic);
-}
+};
 
 const root = {
     course: getCourse,
@@ -31,12 +36,11 @@ const root = {
 };
 
 const app = express();
-app.use('/graphql', express_graphql({
+const options = {
     schema,
     rootValue: root,
     graphiql: true
-}));
+};
 
-app.listen(1480, () =>
-    console.log('Running on http://localhost:1480/graphql')
-);
+app.use('/graphql', expressGraphql(options));
+app.listen(1480, () => console.log('Running on http://localhost:1480/graphql'));
