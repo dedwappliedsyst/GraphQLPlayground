@@ -30,9 +30,22 @@ const getCourses = (args) => {
     return courses.filter(course => course.topic === args.topic);
 };
 
+const updateCourseTitle = (args) => {
+    const course = getCourse(args);
+
+    if (!course) {
+        return null;
+    }
+
+    course.title = args.title;
+
+    return course;
+};
+
 const root = {
     course: getCourse,
-    courses: getCourses
+    courses: getCourses,
+    updateCourseTitle
 };
 
 const app = express();
